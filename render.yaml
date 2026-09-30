@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: lifepass
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: npm install && npm run setup
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: POLYGON_RPC_URL
+        value: https://rpc-amoy.polygon.technology/
+      - key: WALLET_PRIVATE_KEY
+        sync: false
+      - key: POLYGON_EXPLORER
+        value: https://amoy.polygonscan.com/tx/
+      - key: NODE_VERSION
+        value: 20.11.0

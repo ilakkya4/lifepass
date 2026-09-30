@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LIFEPASS — Sign In</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .auth-card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 40px; max-width: 420px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .auth-logo { text-align: center; margin-bottom: 24px; }
+  .auth-logo h1 { font-size: 32px; letter-spacing: 3px; background: linear-gradient(90deg, var(--green), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .auth-logo p { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--card-2); padding: 4px; border-radius: 12px; }
+  .auth-tabs button { flex: 1; background: none; border: none; color: var(--muted); padding: 12px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; transition: all 0.2s; }
+  .auth-tabs button.active { background: linear-gradient(135deg, var(--green), var(--green-2)); color: #04130c; }
+  .auth-form { display: flex; flex-direction: column; gap: 14px; }
+  .auth-form label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: block; }
+  .auth-form input { width: 100%; background: var(--card-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; font-family: inherit; }
+  .auth-form input:focus { outline: none; border-color: var(--green); }
+  .auth-form .btn { padding: 14px; font-size: 14px; }
+  .auth-error { color: var(--red); font-size: 12px; text-align: center; padding: 10px; background: rgba(255,92,122,0.1); border-radius: 8px; display: none; }
+  .auth-error.show { display: block; }
+  .demo-hint { margin-top: 20px; padding: 14px; background: rgba(74,163,255,0.1); border: 1px solid rgba(74,163,255,0.3); border-radius: 10px; font-size: 12px; color: var(--blue); }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="font-size: 48px;">🌱</div>
+      <h1>LIFEPASS</h1>
+      <p>Every product has a life. Give it intelligence.</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="active" id="tabLogin">Sign In</button>
+      <button id="tabRegister">Create Account</button>
+    </div>
+
+    <form class="auth-form" id="authForm">
+      <div id="nameField" style="display: none;">
+        <label>Full Name</label>
+        <input type="text" id="nameInput" placeholder="Your name" />
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" required />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="passInput" placeholder="••••••••" required minlength="6" />
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <button type="submit" class="btn" id="submitBtn">Sign In</button>
+    </form>
+
+    <div class="demo-hint">
+      <strong>🎬 Demo account:</strong><br>
+      Email: <strong>demo@lifepass.in</strong><br>
+      Password: <strong>demo1234</strong>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+const $ = s => document.querySelector(s);
+let mode = 'login';
+
+$('#tabLogin').onclick = () => setMode('login');
+$('#tabRegister').onclick = () => setMode('register');
+
+function setMode(m) {
+  mode = m;
+  $('#tabLogin').classList.toggle('active', m === 'login');
+  $('#tabRegister').classList.toggle('active', m === 'register');
+  $('#nameField').style.display = m === 'register' ? 'block' : 'none';
+  $('#submitBtn').textContent = m === 'login' ? 'Sign In' : 'Create Account';
+  $('#authError').classList.remove('show');
+}
+
+$('#authForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = $('#submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Please wait...';
+
+  try {
+    const body = { email: $('#emailInput').value.trim(), password: $('#passInput').value };
+    if (mode === 'register') body.name = $('#nameInput').value.trim();
+
+    const res = await fetch(API + '/api/auth/' + mode, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      $('#authError').textContent = data.error || 'Something went wrong';
+      $('#authError').classList.add('show');
+      btn.disabled = false;
+      btn.textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+      return;
+    }
+
+    localStorage.setItem('lifepass_token', data.token);
+    localStorage.setItem('lifepass_user', JSON.stringify(data.user));
+    window.location.href = '/index.html';
+  } catch (err) {
+    $('#authError').textContent = 'Network error — try again';
+    $('#authError').classList.add('show');
+    btn.disabled = false;
+    btn.textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+  }
+};
+
+(async () => {
+  const token = localStorage.getItem('lifepass_token');
+  if (!token) return;
+  try {
+    const res = await fetch(API + '/api/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.ok) window.location.href = '/index.html';
+    else localStorage.removeItem('lifepass_token');
+  } catch {}
+})();
+</script>
+</body>
+</html>
+	

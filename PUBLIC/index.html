@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>LIFEPASS — Dashboard</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<header>
+  <div class="logo">
+    <span class="leaf">🌱</span>
+    <div>
+      <h1>LIFEPASS</h1>
+      <p class="tagline">Every product has a life. Give it intelligence.</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div><strong id="hCarbon">0</strong><span>kg CO₂ saved</span></div>
+    <div><strong id="hWater">0</strong><span>L water saved</span></div>
+    <div><strong id="hPoints">0</strong><span>LifePoints</span></div>
+  </div>
+  <div class="header-actions">
+    <span id="userName" style="font-size:12px;color:var(--muted);margin-right:8px;"></span>
+    <button class="icon-btn" id="themeBtn">🌙</button>
+    <button class="icon-btn" id="scanBtn">📷</button>
+    <button class="icon-btn" id="voiceBtn">🎤</button>
+    <button class="icon-btn" id="chainInfoBtn">🔗</button>
+    <button class="icon-btn primary" id="pitchBtn">▶</button>
+    <button class="icon-btn danger" id="logoutBtn">↩</button>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2 class="section-title">1. Select a Product</h2>
+    <div class="product-grid" id="productGrid"><div class="empty">Loading...</div></div>
+  </section>
+
+  <section class="selected-panel" id="selectedPanel" style="display:none;">
+    <div class="product-header" id="productHeader"></div>
+    <div class="tabs" id="tabs">
+      <button data-tab="memory" class="active">🧠 Memory</button>
+      <button data-tab="future">🔮 Future</button>
+      <button data-tab="decision">⚖️ Decisions</button>
+      <button data-tab="chain">⛓️ Chain</button>
+      <button data-tab="whatif">🧪 What-If</button>
+      <button data-tab="ledger">🌍 Ledger</button>
+      <button data-tab="wallet">💰 Wallet</button>
+      <button data-tab="marketplace">🛠️ Repair</button>
+      <button data-tab="compliance">✅ EU Check</button>
+    </div>
+    <div class="tab-content" id="tabContent"></div>
+  </section>
+</main>
+
+<footer>
+  <p>🌱 <strong>LIFEPASS v5.0</strong> • JWT Auth · PostgreSQL · Polygon Amoy</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
